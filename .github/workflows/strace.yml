@@ -1,0 +1,57 @@
+name: 'strace'
+
+on:
+  push:
+    branches:
+    - main
+    - masater
+  pull_request:
+    branches:
+    - main
+    - master
+
+env:
+  MIRROR_URL: "git@github.com:EpitechPromo2027/B-PSU-400-PAR-4-1-strace-lou.onezime.git"
+  EXECUTABLES: "strace"
+  ARGUMENTS: "--help"
+
+jobs:
+  check_program_compilation:
+    name: "verify that each file specified in the EXECUTABLES environment variable exists and is executable"
+    runs-on: ubuntu-latest
+    container: epitechcontent/epitest-docker:latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
+      - run: make
+        timeout-minutes: 2
+      - run: make clean
+      - run: |
+          OIFS=$IFS
+          IFS=' '
+          for x in $EXECUTABLES
+            do
+              ./$x $ARGUMENTS
+            done
+          IFS=$OIFS
+          if [[ -n $EXECUTABLES ]]
+          then
+            echo Program not compiled properly
+          fi
+
+  push_to_mirror:
+    needs: [check_program_compilation]
+    if: ${{ github.event_name == 'push' }}
+    name: "pushes all files to mirror specified"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            ${{ env.MIRROR_URL }}
+          ssh_private_key:
+            ${{ secrets.GIT_SSH_PRIVATE_KEY }}
