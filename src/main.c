@@ -34,24 +34,20 @@ static void show_display(void)
     printf("USAGE:\t./strace [-s] [-p <pid>|<command>]\n\n");
 }
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **env)
 {
-    int i = 1;
-    int status = OK;
-
-    if (ac == 1){
+    if (ac == ERROR_AC){
         fprintf(stderr, "strace: Invalid arguments.\n");
         fprintf(stderr, "Try './strace --help' for more information.\n");
         return ERROR;
     }
-    if (ac == 2 && strcmp(av[1], "--help") == 0){
+    if (ac == HELP_AC && strcmp(av[1], "--help") == OK){
         show_display();
         return OK;
     }
-    while (i != ac){
-        if (do_strace(av[i]) == ERROR)
-            status = ERROR;
-        i++;
+    av++;
+    if (parse_args(av, env) == ERROR){
+        return ERROR;
     }
-    return status;
+    return OK;
 }
