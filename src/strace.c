@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 static syscall_t retrieve_element(int opcode)
 {
@@ -22,10 +23,44 @@ static syscall_t retrieve_element(int opcode)
             return table[i];
 }
 
+static void display_arg(pid_t followed_pid, int format,
+    unsigned long register_value, bool display_comma)
+{
+    if (display_comma)
+        printf(", ");
+    printf("%#x", register_value);
+}
+
+static void display_args(pid_t followed_pid, struct user_regs_struct *regs,
+    syscall_t *syscall_repr)
+{
+    printf("(");
+    if (syscall_repr->param1 > 0)
+        display_arg(followed_pid, syscall_repr->param1, regs->rdi, false);
+    if (syscall_repr->param2 > 0)
+        display_arg(followed_pid, syscall_repr->param2, regs->rsi, true);
+    if (syscall_repr->param3 > 0)
+        display_arg(followed_pid, syscall_repr->param3, regs->rdx, true);
+    if (syscall_repr->param4 > 0)
+        display_arg(followed_pid, syscall_repr->param4, regs->r10, true);
+    if (syscall_repr->param5 > 0)
+        display_arg(followed_pid, syscall_repr->param5, regs->r8, true);
+    if (syscall_repr->param6 > 0)
+        display_arg(followed_pid, syscall_repr->param6, regs->r9, true);
+    printf(")\n");
+}
+
+static bool is_instruction_syscall(pid_t followed_pid,
+    struct user_regs_struct *regs)
+{
+    long op_code = ptrace(PTRACE_PEEKTEXT, followed_pid, regs->rip, NULL);
+
+    return ((op_code & 0xffff) == 0x050f);
+}
+
 static void process(pid_t followed_pid)
 {
     int status = 0;
-    long instruction = 0;
     long syscall = 0;
     syscall_t retrieved_syscall;
     struct user_regs_struct regs;
@@ -33,11 +68,11 @@ static void process(pid_t followed_pid)
     wait4(followed_pid, &status, 0, NULL);
     while (WIFSTOPPED(status)) {
         ptrace(PTRACE_GETREGS, followed_pid, NULL, &regs);
-        instruction = ptrace(PTRACE_PEEKTEXT, followed_pid, regs.rip, NULL);
         syscall = ptrace(PTRACE_PEEKTEXT, followed_pid, regs.rax, NULL);
-        if ((instruction & 0xffff) == 0x050f) {
+        if (is_instruction_syscall(followed_pid, &regs)) {
             retrieved_syscall = retrieve_element(regs.rax);
-            printf("%s\n", retrieved_syscall.name);
+            printf("%s", retrieved_syscall.name);
+            display_args(followed_pid, &regs, &retrieved_syscall);
         }
         ptrace(PTRACE_SINGLESTEP, followed_pid, 0, 0);
         wait4(followed_pid, &status, 0, NULL);

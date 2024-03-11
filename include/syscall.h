@@ -126,13 +126,13 @@ typedef struct {
     int op_code;
     char *name;
     int amount_param;
+    int return_val;
     int param1;
     int param2;
     int param3;
     int param4;
     int param5;
     int param6;
-    int param7;
 } syscall_t;
 
 static syscall_t table[330] = {{0, "read", 3, NUM, NUM, VOID_P, NUM, 0, 0, 0},
