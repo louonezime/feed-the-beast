@@ -11,6 +11,6 @@
     #define OK 0
     #define ERROR 84
 
-int do_strace(const char *arg);
+int binary_process(int argc, char **argv, char **env);
 
 #endif /* !STRACE_H_ */

@@ -34,11 +34,8 @@ static void show_display(void)
     printf("USAGE:\t./strace [-s] [-p <pid>|<command>]\n\n");
 }
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **env)
 {
-    int i = 1;
-    int status = OK;
-
     if (ac == 1){
         fprintf(stderr, "strace: Invalid arguments.\n");
         fprintf(stderr, "Try './strace --help' for more information.\n");
@@ -48,10 +45,5 @@ int main(int ac, char **av)
         show_display();
         return OK;
     }
-    while (i != ac){
-        if (do_strace(av[i]) == ERROR)
-            status = ERROR;
-        i++;
-    }
-    return status;
+    return binary_process(ac, av, env);
 }
