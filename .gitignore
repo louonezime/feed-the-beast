@@ -1,0 +1,10 @@
+*.log
+*.json
+
+*.o
+
+strace
+
+.vscode
+.idea
+.cache
