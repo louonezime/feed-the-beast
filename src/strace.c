@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <string.h>
 
 static syscall_t retrieve_element(int opcode)
 {
@@ -34,34 +35,6 @@ static bool syscall_exist(int opcode)
         }
     }
     return false;
-}
-
-static void display_arg(pid_t followed_pid, int format,
-    unsigned long register_value, bool display_comma)
-{
-    if (display_comma){
-        printf(", ");
-    }
-    printf("%#x", register_value);
-}
-
-static void display_args(pid_t followed_pid, struct user_regs_struct *regs,
-    syscall_t *syscall_repr)
-{
-    printf("(");
-    if (syscall_repr->param1 > 0)
-        display_arg(followed_pid, syscall_repr->param1, regs->rdi, false);
-    if (syscall_repr->param2 > 0)
-        display_arg(followed_pid, syscall_repr->param2, regs->rsi, true);
-    if (syscall_repr->param3 > 0)
-        display_arg(followed_pid, syscall_repr->param3, regs->rdx, true);
-    if (syscall_repr->param4 > 0)
-        display_arg(followed_pid, syscall_repr->param4, regs->r10, true);
-    if (syscall_repr->param5 > 0)
-        display_arg(followed_pid, syscall_repr->param5, regs->r8, true);
-    if (syscall_repr->param6 > 0)
-        display_arg(followed_pid, syscall_repr->param6, regs->r9, true);
-    printf(")");
 }
 
 static bool is_instruction_syscall(pid_t followed_pid,
@@ -88,13 +61,13 @@ static void display_syscall_return(bool is_syscall, pid_t followed_pid,
     }
 }
 
-static void process_syscall(pid_t followed_pid, struct user_regs_struct *regs,
+static void process_syscall(bool mode, struct user_regs_struct *regs,
     bool *is_syscall)
 {
     syscall_t retrieved_syscall = retrieve_element(regs->rax);
 
     printf("%s", retrieved_syscall.name);
-    display_args(followed_pid, regs, &retrieved_syscall);
+    stock_args(mode, regs, &retrieved_syscall);
     *is_syscall = true;
 }
 
@@ -109,7 +82,7 @@ void process(pid_t followed_pid, bool mode)
         ptrace(PTRACE_GETREGS, followed_pid, NULL, &regs);
         if (is_instruction_syscall(followed_pid, &regs) &&
         syscall_exist(regs.rax))
-            process_syscall(followed_pid, &regs, &is_syscall);
+            process_syscall(mode, &regs, &is_syscall);
         else
             is_syscall = false;
         ptrace(PTRACE_SINGLESTEP, followed_pid, 0, 0);
