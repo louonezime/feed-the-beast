@@ -111,6 +111,8 @@ static void process(pid_t followed_pid)
         display_syscall_return(is_syscall, followed_pid, &regs);
     }
     ptrace(PTRACE_DETACH, followed_pid, 0, 0);
+    if (WIFEXITED(status))
+        printf("+++ exited with %d +++\n", WEXITSTATUS(status));
 }
 
 int binary_process(int argc, char **argv, char **env)
