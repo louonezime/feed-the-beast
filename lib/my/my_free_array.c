@@ -1,8 +1,8 @@
 /*
 ** EPITECH PROJECT, 2024
-** B-NWP-400-PAR-4-1-myftp-lou.onezime
+** feed-the-beast
 ** File description:
-** my_str_to_word_array
+** my_free_array
 */
 
 #include <unistd.h>
