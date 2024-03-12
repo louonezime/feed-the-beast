@@ -19,13 +19,14 @@ BASE_SRC	=	src/main.c	\
 				$(SRC)
 
 SRC	=	src/strace.c	\
-		src/parsing.c
+		src/parsing.c	\
+		src/util_messages.c
 
 OBJ	=	$(BASE_SRC:.c=.o)
 
 TEST_NAME	=	unit_tests
 
-TEST_SRC	=	tests/
+TEST_SRC	=
 
 all: $(NAME)
 
@@ -35,21 +36,26 @@ $(NAME):	$(OBJ)
 
 clean:
 	make clean -C ./lib/my
+	$(RM) *.gcno
+	$(RM) *.gcda
 	$(RM) $(OBJ)
 
 fclean:	clean
 	make fclean -C ./lib/my
+	$(RM) $(TEST_NAME)
 	$(RM) $(NAME)
 
 re:	fclean all
 
 $(TEST_NAME): $(SRC) $(TEST_SRC)
-	$(CC) $(SRC) $(TEST_SRC) $(CPPFLAGS) --coverage -lcriterion -o $(TEST_NAME)
+	make -C ./lib/my
+	$(CC) $(SRC) $(TEST_SRC) $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) \
+		--coverage -lcriterion -o $(TEST_NAME)
 
 tests_run:	$(TEST_NAME)
 	./$(TEST_NAME)
 
-debug: CXXFLAGS += -g3 -D DEBUG
+debug: CXXFLAGS += -g3
 debug: re
 
 .PHONY:	all clean fclean re debug tests_run

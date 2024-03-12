@@ -45,15 +45,3 @@ int parse_args(char **args, char **env)
     }
     return do_strace(args, env, HEXA_FORMAT);
 }
-
-int send_err(const char *error)
-{
-    fprintf(stderr, "strace: %s.\n", error);
-    return ERROR;
-}
-
-int send_err_arg(const char *error, char *arg)
-{
-    fprintf(stderr, "strace: %s: '%s'.\n", error, arg);
-    return ERROR;
-}
