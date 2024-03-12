@@ -99,7 +99,7 @@ int do_strace(char **arg, char **env, bool mode)
         return binary_process(arg, env);
     }
     if (mode == S_FORMAT){
-        printf("return function that handles s flag\n");
+        return binary_process(arg, env);
     }
     return ERROR;
 }

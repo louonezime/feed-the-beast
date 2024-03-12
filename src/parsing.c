@@ -32,7 +32,7 @@ static bool attach_process_id(pid_t pid, bool mode)
     return true;
 }
 
-static int parse_p_flag(char *pid, bool mode)
+static int parse_p_flag(char *pid, bool mode, char **args)
 {
     pid_t processed_id = 0;
 
@@ -42,6 +42,11 @@ static int parse_p_flag(char *pid, bool mode)
     processed_id = atoi(pid);
     if (processed_id == ATOI_ERROR && pid[0] != '0'){
         return send_err_arg("Invalid process id: ", pid);
+    }
+    if (args[2] != NULL){
+        if (strcmp(args[2], "-s") == OK){
+            return attach_process_id(processed_id, S_FORMAT);
+        }
     }
     if (!attach_process_id(processed_id, mode)){
         return ERROR;
@@ -56,7 +61,7 @@ static int parse_s_flag(char **args, char **env)
         return send_err("option requires an argument -- 's'");
     }
     if (strcmp(args[0], "-p") == OK){
-        return parse_p_flag(args[1], S_FORMAT);
+        return parse_p_flag(args[1], S_FORMAT, args);
     }
     return do_strace(args, env, S_FORMAT);
 }
@@ -67,10 +72,10 @@ int parse_args(char **args, char **env)
         return parse_s_flag(args, env);
     }
     if (strcmp(args[0], "-p") == OK){
-        return parse_p_flag(args[1], HEXA_FORMAT);
+        return parse_p_flag(args[1], HEXA_FORMAT, args);
     }
     if (strcmp(args[0], "-sp") == OK || strcmp(args[0], "-ps") == OK){
-        return parse_p_flag(args[1], S_FORMAT);
+        return parse_p_flag(args[1], S_FORMAT, args);
     }
     return do_strace(args, env, HEXA_FORMAT);
 }
