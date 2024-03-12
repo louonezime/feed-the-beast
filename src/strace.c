@@ -19,24 +19,29 @@
 
 static syscall_t retrieve_element(int opcode)
 {
-    for (int i = 0; i < NB_SYSCALLS; i++)
-        if (table[i].op_code == opcode)
+    for (int i = 0; i < NB_SYSCALLS; i++){
+        if (table[i].op_code == opcode){
             return table[i];
+        }
+    }
 }
 
 static bool syscall_exist(int opcode)
 {
-    for (int i = 0; i < NB_SYSCALLS; i++)
-        if (table[i].op_code == opcode)
+    for (int i = 0; i < NB_SYSCALLS; i++){
+        if (table[i].op_code == opcode){
             return true;
+        }
+    }
     return false;
 }
 
 static void display_arg(pid_t followed_pid, int format,
     unsigned long register_value, bool display_comma)
 {
-    if (display_comma)
+    if (display_comma){
         printf(", ");
+    }
     printf("%#x", register_value);
 }
 
@@ -74,9 +79,9 @@ static void display_syscall_return(bool is_syscall, pid_t followed_pid,
 
     if (is_syscall) {
         retrieved_syscall = retrieve_element(regs->rax);
-        if (retrieved_syscall.return_val == VOID)
+        if (retrieved_syscall.return_val == VOID){
             printf(" = ?\n");
-        else {
+        } else {
             ptrace(PTRACE_GETREGS, followed_pid, NULL, regs);
             printf(" = %#x\n", regs->rax);
         }
@@ -112,22 +117,26 @@ void process(pid_t followed_pid)
         display_syscall_return(is_syscall, followed_pid, &regs);
     }
     ptrace(PTRACE_DETACH, followed_pid, 0, 0);
-    if (WIFEXITED(status))
+    if (WIFEXITED(status)){
         printf("+++ exited with %d +++\n", WEXITSTATUS(status));
+    }
 }
 
 int binary_process(char **argv, char **env)
 {
     pid_t child_pid = 0;
 
-    if (env == NULL)
+    if (env == NULL){
         return ERROR;
+    }
     child_pid = fork();
-    if (child_pid < 0)
+    if (child_pid < OK){
         return ERROR;
-    if (child_pid == 0) {
-        if (ptrace(PT_TRACE_ME, 0, 0, 0) < OK)
+    }
+    if (child_pid == OK){
+        if (ptrace(PT_TRACE_ME, 0, 0, 0) < OK){
             return ERROR;
+        }
         execve(argv[0], &argv[0], env);
     } else {
         process(child_pid);
