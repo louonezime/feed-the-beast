@@ -6,99 +6,140 @@
 */
 
 #include "strace.h"
-#include "my.h"
+#include "syscall.h"
 
-#include <stdio.h>
-#include <sys/stat.h>
-#include <stdbool.h>
-#include <string.h>
+#include <sys/user.h>
+#include <sys/ptrace.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
-#include <stdlib.h>
+#include <stdio.h>
+#include <stddef.h>
+#include <stdbool.h>
 
-static char *get_arg(char *path, char *command)
+static syscall_t retrieve_element(int opcode)
 {
-    int j = 0;
-    char *new = malloc(sizeof(char) *
-        (strlen(command) + strlen(path) + 2));
-
-    if (new == NULL)
-        return NULL;
-    for (int i = 0; path[i] != '\0'; i++){
-        new[j] = path[i];
-        j++;
+    for (int i = 0; i < NB_SYSCALLS; i++){
+        if (table[i].op_code == opcode){
+            return table[i];
+        }
     }
-    new[j] = '/';
-    j++;
-    for (int k = 0; command[k] != '\0'; k++){
-        new[j] = command[k];
-        j++;
-    }
-    new[j] = '\0';
-    return new;
 }
 
-static bool check_path(char **arg, char *env_var, char **path, char **env)
+static bool syscall_exist(int opcode)
 {
-    int i = 0;
-    char *command = NULL;
-    char **paths = my_str_to_word_array(env_var, PATHS_SEPARATOR);
-
-    if (paths == NULL)
-        return NULL;
-    while (paths[i] != NULL){
-        command = get_arg(paths[i], arg[0]);
-        if (access(command, X_OK) < OK){
-            free(command);
-            i++;
-        } else {
-            my_free_array(paths);
-            *path = strdup(command);
-            free(command);
+    for (int i = 0; i < NB_SYSCALLS; i++){
+        if (table[i].op_code == opcode){
             return true;
         }
     }
-    my_free_array(paths);
     return false;
 }
 
-static bool check_env(char **arg, char **env, char **path_command)
+static void display_arg(pid_t followed_pid, int format,
+    unsigned long register_value, bool display_comma)
 {
-    for (int i = 0; env[i] != NULL; i++){
-        if (strncmp(env[i], "PATH", strlen("PATH")) == OK){
-            return check_path(arg, env[i], path_command, env);
-        }
+    if (display_comma){
+        printf(", ");
     }
-    return true;
+    printf("%#x", register_value);
 }
 
-static bool preliminaries(char **arg, char **env, char **path_command)
+static void display_args(pid_t followed_pid, struct user_regs_struct *regs,
+    syscall_t *syscall_repr)
 {
-    struct stat statis;
-
-    if (!check_env(arg, env, path_command)){
-        if (stat(arg[0], &statis) < OK){
-            fprintf(stderr, "strace: Can't stat '%s': ", arg[0]);
-            perror("");
-            return false;
-        }
-        return false;
-    }
-    return true;
+    printf("(");
+    if (syscall_repr->param1 > 0)
+        display_arg(followed_pid, syscall_repr->param1, regs->rdi, false);
+    if (syscall_repr->param2 > 0)
+        display_arg(followed_pid, syscall_repr->param2, regs->rsi, true);
+    if (syscall_repr->param3 > 0)
+        display_arg(followed_pid, syscall_repr->param3, regs->rdx, true);
+    if (syscall_repr->param4 > 0)
+        display_arg(followed_pid, syscall_repr->param4, regs->r10, true);
+    if (syscall_repr->param5 > 0)
+        display_arg(followed_pid, syscall_repr->param5, regs->r8, true);
+    if (syscall_repr->param6 > 0)
+        display_arg(followed_pid, syscall_repr->param6, regs->r9, true);
+    printf(")");
 }
 
-int do_strace(char **arg, char **env, bool mode)
+static bool is_instruction_syscall(pid_t followed_pid,
+    struct user_regs_struct *regs)
 {
-    char *path_command = NULL;
+    long op_code = ptrace(PTRACE_PEEKTEXT, followed_pid, regs->rip, NULL);
 
-    if (!preliminaries(arg, env, &path_command)){
+    return ((op_code & 0xffff) == 0x050f);
+}
+
+static void display_syscall_return(bool is_syscall, pid_t followed_pid,
+    struct user_regs_struct *regs)
+{
+    syscall_t retrieved_syscall;
+
+    if (is_syscall) {
+        retrieved_syscall = retrieve_element(regs->rax);
+        if (retrieved_syscall.return_val == VOID){
+            printf(" = ?\n");
+        } else {
+            ptrace(PTRACE_GETREGS, followed_pid, NULL, regs);
+            printf(" = %#x\n", regs->rax);
+        }
+    }
+}
+
+static void process_syscall(pid_t followed_pid, struct user_regs_struct *regs,
+    bool *is_syscall)
+{
+    syscall_t retrieved_syscall = retrieve_element(regs->rax);
+
+    printf("%s", retrieved_syscall.name);
+    display_args(followed_pid, regs, &retrieved_syscall);
+    *is_syscall = true;
+}
+
+void process(pid_t followed_pid)
+{
+    int status = 0;
+    struct user_regs_struct regs;
+    bool is_syscall = false;
+
+    wait4(followed_pid, &status, 0, NULL);
+    while (WIFSTOPPED(status)) {
+        ptrace(PTRACE_GETREGS, followed_pid, NULL, &regs);
+        if (is_instruction_syscall(followed_pid, &regs) &&
+        syscall_exist(regs.rax))
+            process_syscall(followed_pid, &regs, &is_syscall);
+        else
+            is_syscall = false;
+        ptrace(PTRACE_SINGLESTEP, followed_pid, 0, 0);
+        wait4(followed_pid, &status, 0, NULL);
+        display_syscall_return(is_syscall, followed_pid, &regs);
+    }
+    ptrace(PTRACE_DETACH, followed_pid, 0, 0);
+    if (WIFEXITED(status)){
+        printf("+++ exited with %d +++\n", WEXITSTATUS(status));
+    }
+}
+
+int binary_process(char **argv, char **env)
+{
+    pid_t child_pid = 0;
+
+    if (env == NULL){
         return ERROR;
     }
-    printf("path found: %s\n", path_command);
-    if (mode == HEXA_FORMAT){
-        printf("return function that handles hexa\n");
+    child_pid = fork();
+    if (child_pid < OK){
+        return ERROR;
     }
-    if (mode == S_FORMAT){
-        printf("return function that handles s flag\n");
+    if (child_pid == OK){
+        if (ptrace(PT_TRACE_ME, 0, 0, 0) < OK){
+            return ERROR;
+        }
+        execve(argv[0], &argv[0], env);
+    } else {
+        process(child_pid);
     }
-    return ERROR;
+    return OK;
 }
