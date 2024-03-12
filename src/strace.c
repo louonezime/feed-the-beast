@@ -51,13 +51,13 @@ static bool check_path(char **arg, char *env_var, char **path, char **env)
             free(command);
             i++;
         } else {
-            free_array(paths);
+            my_free_array(paths);
             *path = strdup(command);
             free(command);
             return true;
         }
     }
-    free_array(paths);
+    my_free_array(paths);
     return false;
 }
 

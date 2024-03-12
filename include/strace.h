@@ -29,10 +29,4 @@ int send_err_arg(const char *error, char *arg);
 /* strace */
 int do_strace(char **arg, char **env, bool mode);
 
-/* util library */
-char **my_str_to_word_array(char *str, char separator);
-char *my_strcat(char *dest, char const *src);
-int nb_of_words(char **array);
-void free_array(char **array);
-
 #endif /* !STRACE_H_ */

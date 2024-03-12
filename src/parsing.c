@@ -30,6 +30,7 @@ static int parse_p_flag(char *pid)
     process = atoi(pid);
     if (process == 0 && pid[0] != '0'){
         printf("handle_process(process)\n");
+        return OK;
     }
     return send_err_arg("Invalid process id: ", pid);
 }

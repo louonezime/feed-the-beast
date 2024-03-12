@@ -8,14 +8,15 @@
 #ifndef MY_H_
     #define MY_H_
 
-/* STRTOK */
+/* ARRAY */
 
 char **my_str_to_word_array(char *str, char separator);
 
-void free_array(char **array);
-int nb_of_words(char **array);
+void my_free_array(char **array);
 
-/* STRCAT */
+int my_arraylen(char **array);
+
+/* STR */
 
 char *my_strcat(char *dest, char const *src);
 

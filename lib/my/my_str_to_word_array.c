@@ -1,31 +1,12 @@
 /*
 ** EPITECH PROJECT, 2024
-** B-NWP-400-PAR-4-1-myftp-lou.onezime
+** feed-the-beast
 ** File description:
 ** my_str_to_word_array
 */
 
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-
-int nb_of_words(char **array)
-{
-    int count = 0;
-
-    for (int i = 0; array[i] != NULL; i++){
-        count++;
-    }
-    return count;
-}
-
-void free_array(char **array)
-{
-    for (int i = 0; array[i] != NULL; i++){
-        free(array[i]);
-    }
-    free(array);
-}
 
 static int columns(char *str, char separator)
 {
@@ -74,23 +55,4 @@ char **my_str_to_word_array(char *str, char separator)
     }
     array[columns(str, separator)] = NULL;
     return array;
-}
-
-char *my_strcat(char *dest, char const *src)
-{
-    int i = 0;
-    int j = 0;
-    char *final;
-
-    final = malloc(sizeof(*final) * (strlen(dest) + strlen(src) + 1));
-    while (dest[i]){
-        final[i] = dest[i];
-        i++;
-    }
-    while (src[j]){
-        final[i + j] = src[j];
-        j++;
-    }
-    final[i + j] = '\0';
-    return final;
 }
