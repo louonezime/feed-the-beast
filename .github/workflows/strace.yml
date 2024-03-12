@@ -1,14 +1,6 @@
 name: 'strace'
 
-on:
-  push:
-    branches:
-    - main
-    - masater
-  pull_request:
-    branches:
-    - main
-    - master
+on: [push, pull_request]
 
 env:
   MIRROR_URL: "git@github.com:EpitechPromo2027/B-PSU-400-PAR-4-1-strace-lou.onezime.git"
