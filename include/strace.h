@@ -28,5 +28,6 @@ int send_err_arg(const char *error, char *arg);
 
 /* strace */
 int do_strace(char **arg, char **env, bool mode);
+int binary_process(int argc, char **argv, char **env);
 
 #endif /* !STRACE_H_ */
