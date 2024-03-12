@@ -77,7 +77,7 @@ static void display_syscall_return(bool is_syscall, pid_t followed_pid,
 {
     syscall_t retrieved_syscall;
 
-    if (is_syscall) {
+    if (is_syscall){
         retrieved_syscall = retrieve_element(regs->rax);
         if (retrieved_syscall.return_val == VOID){
             printf(" = ?\n");
@@ -126,18 +126,16 @@ int binary_process(char **argv, char **env)
 {
     pid_t child_pid = 0;
 
-    if (env == NULL){
-        return ERROR;
-    }
     child_pid = fork();
     if (child_pid < OK){
+        perror("strace: fork");
         return ERROR;
     }
     if (child_pid == OK){
         if (ptrace(PT_TRACE_ME, 0, 0, 0) < OK){
-            return ERROR;
+            return send_ptrace_err("trace", "PT_TRACE_ME", 0);
         }
-        execve(argv[0], &argv[0], env);
+        execve(argv[0], argv, env);
     } else {
         process(child_pid);
     }

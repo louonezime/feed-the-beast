@@ -13,25 +13,6 @@
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 
-static bool attach_process_id(pid_t pid, bool mode)
-{
-    int status = 0;
-
-    if (ptrace(PTRACE_SEIZE, pid, NULL, NULL) < OK) {
-        fprintf(stderr, "strace: attach: ptrace(PTRACE_SEIZE, %d): ", pid);
-        perror("");
-        return false;
-    }
-    waitpid(pid, &status, 0);
-    if (mode == HEXA_FORMAT){
-        process(pid);
-    }
-    if (mode == S_FORMAT){
-        process(pid);
-    }
-    return true;
-}
-
 static int parse_p_flag(char *pid, bool mode, char **args)
 {
     pid_t processed_id = 0;

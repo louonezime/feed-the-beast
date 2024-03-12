@@ -21,7 +21,8 @@ BASE_SRC	=	src/main.c	\
 SRC	=	src/strace.c	\
 		src/parsing.c	\
 		src/util_messages.c	\
-		src/error_handling.c
+		src/error_handling.c	\
+		src/port.c
 
 OBJ	=	$(BASE_SRC:.c=.o)
 

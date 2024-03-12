@@ -28,10 +28,12 @@ static const bool HEXA_FORMAT = false;
 int parse_args(char **av, char **env);
 int send_err(const char *error);
 int send_err_arg(const char *error, char *arg);
+int send_ptrace_err(const char *title, const char *request, int pid);
 
 /* strace */
 int do_strace(char **arg, char **env, bool mode);
 int binary_process(char **argv, char **env);
+bool attach_process_id(pid_t pid, bool mode);
 void process(pid_t followed_pid);
 
 #endif /* !STRACE_H_ */
