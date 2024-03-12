@@ -23,6 +23,14 @@ static syscall_t retrieve_element(int opcode)
             return table[i];
 }
 
+static bool syscall_exist(int opcode)
+{
+    for (int i = 0; i < NB_SYSCALLS; i++)
+        if (table[i].op_code == opcode)
+            return true;
+    return false;
+}
+
 static void display_arg(pid_t followed_pid, int format,
     unsigned long register_value, bool display_comma)
 {
@@ -47,7 +55,7 @@ static void display_args(pid_t followed_pid, struct user_regs_struct *regs,
         display_arg(followed_pid, syscall_repr->param5, regs->r8, true);
     if (syscall_repr->param6 > 0)
         display_arg(followed_pid, syscall_repr->param6, regs->r9, true);
-    printf(")\n");
+    printf(")");
 }
 
 static bool is_instruction_syscall(pid_t followed_pid,
@@ -58,24 +66,42 @@ static bool is_instruction_syscall(pid_t followed_pid,
     return ((op_code & 0xffff) == 0x050f);
 }
 
+static void display_syscall_return(bool is_syscall, pid_t followed_pid,
+    struct user_regs_struct *regs)
+{
+    if (is_syscall) {
+        ptrace(PTRACE_GETREGS, followed_pid, NULL, regs);
+        printf(" = %#x\n", regs->rax);
+    }
+}
+
+static void process_syscall(pid_t followed_pid, struct user_regs_struct *regs,
+    bool *is_syscall)
+{
+    syscall_t retrieved_syscall = retrieve_element(regs->rax);
+
+    printf("%s", retrieved_syscall.name);
+    display_args(followed_pid, regs, &retrieved_syscall);
+    *is_syscall = true;
+}
+
 static void process(pid_t followed_pid)
 {
     int status = 0;
-    long syscall = 0;
-    syscall_t retrieved_syscall;
     struct user_regs_struct regs;
+    bool is_syscall = false;
 
     wait4(followed_pid, &status, 0, NULL);
     while (WIFSTOPPED(status)) {
         ptrace(PTRACE_GETREGS, followed_pid, NULL, &regs);
-        syscall = ptrace(PTRACE_PEEKTEXT, followed_pid, regs.rax, NULL);
-        if (is_instruction_syscall(followed_pid, &regs)) {
-            retrieved_syscall = retrieve_element(regs.rax);
-            printf("%s", retrieved_syscall.name);
-            display_args(followed_pid, &regs, &retrieved_syscall);
-        }
+        if (is_instruction_syscall(followed_pid, &regs) &&
+        syscall_exist(regs.rax))
+            process_syscall(followed_pid, &regs, &is_syscall);
+        else
+            is_syscall = false;
         ptrace(PTRACE_SINGLESTEP, followed_pid, 0, 0);
         wait4(followed_pid, &status, 0, NULL);
+        display_syscall_return(is_syscall, followed_pid, &regs);
     }
     ptrace(PTRACE_DETACH, followed_pid, 0, 0);
 }
