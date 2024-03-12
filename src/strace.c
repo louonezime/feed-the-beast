@@ -64,11 +64,19 @@ static void display_syscall_return(bool is_syscall, pid_t followed_pid,
 static void process_syscall(bool mode, struct user_regs_struct *regs,
     bool *is_syscall)
 {
-    syscall_t retrieved_syscall = retrieve_element(regs->rax);
+    syscall_t retrieved_syscall;
 
-    printf("%s", retrieved_syscall.name);
-    stock_args(mode, regs, &retrieved_syscall);
-    *is_syscall = true;
+    if (syscall_exist(regs->rax)) {
+        retrieved_syscall = retrieve_element(regs->rax);
+        printf("%s", retrieved_syscall.name);
+        stock_args(mode, regs, &retrieved_syscall);
+        *is_syscall = true;
+    } else {
+        *is_syscall = false;
+        printf("syscall_%#x(%#x, %#x, %#x, %#x, %#x, %#x) = -1 ENOSYS "
+            "(Function not implemented)\n", regs->rdi, regs->rsi, regs->rdx,
+            regs->r10, regs->r8, regs->r9);
+    }
 }
 
 void process(pid_t followed_pid, bool mode)
@@ -80,8 +88,7 @@ void process(pid_t followed_pid, bool mode)
     wait4(followed_pid, &status, 0, NULL);
     while (WIFSTOPPED(status)) {
         ptrace(PTRACE_GETREGS, followed_pid, NULL, &regs);
-        if (is_instruction_syscall(followed_pid, &regs) &&
-        syscall_exist(regs.rax))
+        if (is_instruction_syscall(followed_pid, &regs))
             process_syscall(mode, &regs, &is_syscall);
         else
             is_syscall = false;
