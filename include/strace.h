@@ -32,8 +32,8 @@ int send_ptrace_err(const char *title, const char *request, int pid);
 
 /* strace */
 int do_strace(char **arg, char **env, bool mode);
-int binary_process(char **argv, char **env);
+int binary_process(char **argv, char **env, bool mode);
+void process(pid_t followed_pid, bool mode);
 bool attach_process_id(pid_t pid, bool mode);
-void process(pid_t followed_pid);
 
 #endif /* !STRACE_H_ */

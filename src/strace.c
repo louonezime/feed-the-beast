@@ -98,7 +98,7 @@ static void process_syscall(pid_t followed_pid, struct user_regs_struct *regs,
     *is_syscall = true;
 }
 
-void process(pid_t followed_pid)
+void process(pid_t followed_pid, bool mode)
 {
     int status = 0;
     struct user_regs_struct regs;
@@ -122,7 +122,7 @@ void process(pid_t followed_pid)
     }
 }
 
-int binary_process(char **argv, char **env)
+int binary_process(char **argv, char **env, bool mode)
 {
     pid_t child_pid = 0;
 
