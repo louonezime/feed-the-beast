@@ -16,7 +16,8 @@ BASE_SRC	=	src/main.c	\
 				$(SRC)
 
 SRC	=	src/strace.c	\
-		src/parsing.c
+		src/parsing.c	\
+		src/my.c
 OBJ	=	$(BASE_SRC:.c=.o)
 
 TEST_NAME	=	unit_tests
