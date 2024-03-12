@@ -93,9 +93,10 @@ int do_strace(char **arg, char **env, bool mode)
     if (!preliminaries(arg, env, &path_command)){
         return ERROR;
     }
-    printf("path found: %s\n", path_command);
+    arg[0] = strdup(path_command);
+    free(path_command);
     if (mode == HEXA_FORMAT){
-        printf("return function that handles hexa\n");
+        return binary_process(arg, env);
     }
     if (mode == S_FORMAT){
         printf("return function that handles s flag\n");

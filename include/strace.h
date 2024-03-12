@@ -9,6 +9,7 @@
     #define STRACE_H_
 
     #include <stdbool.h>
+    #include <aio.h>
 
     #define OK 0
     #define ERROR 84
@@ -28,6 +29,7 @@ int send_err_arg(const char *error, char *arg);
 
 /* strace */
 int do_strace(char **arg, char **env, bool mode);
-int binary_process(int argc, char **argv, char **env);
+int binary_process(char **argv, char **env);
+void process(pid_t followed_pid);
 
 #endif /* !STRACE_H_ */

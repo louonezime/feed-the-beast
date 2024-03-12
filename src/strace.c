@@ -86,7 +86,7 @@ static void process_syscall(pid_t followed_pid, struct user_regs_struct *regs,
     *is_syscall = true;
 }
 
-static void process(pid_t followed_pid)
+void process(pid_t followed_pid)
 {
     int status = 0;
     struct user_regs_struct regs;
@@ -107,7 +107,7 @@ static void process(pid_t followed_pid)
     ptrace(PTRACE_DETACH, followed_pid, 0, 0);
 }
 
-int binary_process(int argc, char **argv, char **env)
+int binary_process(char **argv, char **env)
 {
     pid_t child_pid = 0;
 
@@ -117,9 +117,9 @@ int binary_process(int argc, char **argv, char **env)
     if (child_pid < 0)
         return ERROR;
     if (child_pid == 0) {
-        if (ptrace(PT_TRACE_ME, 0, 0, 0) < 0)
+        if (ptrace(PT_TRACE_ME, 0, 0, 0) < OK)
             return ERROR;
-        execve(argv[1], &argv[1], env);
+        execve(argv[0], &argv[0], env);
     } else {
         process(child_pid);
     }

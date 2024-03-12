@@ -10,6 +10,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ptrace.h>
+#include <sys/wait.h>
 
 static int parse_s_flag(char **args, char **env)
 {
@@ -20,19 +22,35 @@ static int parse_s_flag(char **args, char **env)
     return do_strace(args, env, S_FORMAT);
 }
 
+static bool attach_process_id(pid_t pid)
+{
+    int status = 0;
+
+    if (ptrace(PTRACE_SEIZE, pid, NULL, NULL) < OK) {
+        fprintf(stderr, "strace: attach: ptrace(PTRACE_SEIZE, %d): ", pid);
+        perror("");
+        return false;
+    }
+    waitpid(pid, &status, 0);
+    process(pid);
+    return true;
+}
+
 static int parse_p_flag(char *pid)
 {
-    int process = 0;
+    pid_t processed_id = 0;
 
     if (pid == NULL){
         return send_err("option requires an argument -- 'p'");
     }
-    process = atoi(pid);
-    if (process == 0 && pid[0] != '0'){
-        printf("handle_process(process)\n");
-        return OK;
+    processed_id = atoi(pid);
+    if (processed_id == 0 && pid[0] != '0'){
+        return send_err_arg("Invalid process id: ", pid);
     }
-    return send_err_arg("Invalid process id: ", pid);
+    if (!attach_process_id(processed_id)){
+        return ERROR;
+    }
+    return OK;
 }
 
 int parse_args(char **args, char **env)
