@@ -10,6 +10,7 @@
 
     #include <stdbool.h>
     #include <aio.h>
+    #include <sys/user.h>
 
     #define OK 0
     #define ERROR 84
@@ -20,6 +21,8 @@
     #define ATOI_ERROR 0
 
     #define PATHS_SEPARATOR ':'
+
+typedef struct syscall_s syscall_t;
 
 static const bool S_FORMAT = true;
 static const bool HEXA_FORMAT = false;
@@ -35,5 +38,6 @@ int do_strace(char **arg, char **env, bool mode);
 int binary_process(char **argv, char **env, bool mode);
 void process(pid_t followed_pid, bool mode);
 bool attach_process_id(pid_t pid, bool mode);
+void stock_args(bool mode, struct user_regs_struct *regs, syscall_t *sys_repr);
 
 #endif /* !STRACE_H_ */

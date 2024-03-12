@@ -18,12 +18,12 @@ NAME	=	strace
 BASE_SRC	=	src/main.c	\
 				$(SRC)
 
-SRC	=	src/strace.c	\
-		src/parsing.c	\
-		src/util_messages.c	\
+SRC	=	src/strace.c			\
+		src/parsing.c			\
+		src/util_messages.c		\
 		src/error_handling.c	\
-		src/port.c
-
+		src/port.c				\
+		src/parameters.c
 OBJ	=	$(BASE_SRC:.c=.o)
 
 TEST_NAME	=	unit_tests

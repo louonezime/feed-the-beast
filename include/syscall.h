@@ -122,7 +122,7 @@
     #define     STRUCT_SCHED_ATTR_P     (127)
     #define     UNION__ATTR_P       (128)
 
-typedef struct {
+typedef struct syscall_s {
     int op_code;
     char *name;
     int amount_param;
