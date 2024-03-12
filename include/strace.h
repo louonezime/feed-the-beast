@@ -17,6 +17,8 @@
     #define HELP_AC 2
     #define ERROR_AC 1
 
+    #define ATOI_ERROR 0
+
     #define PATHS_SEPARATOR ':'
 
 static const bool S_FORMAT = true;

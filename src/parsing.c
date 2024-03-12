@@ -13,16 +13,7 @@
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 
-static int parse_s_flag(char **args, char **env)
-{
-    args++;
-    if (args[0] == NULL){
-        return send_err("option requires an argument -- 's'");
-    }
-    return do_strace(args, env, S_FORMAT);
-}
-
-static bool attach_process_id(pid_t pid)
+static bool attach_process_id(pid_t pid, bool mode)
 {
     int status = 0;
 
@@ -32,11 +23,16 @@ static bool attach_process_id(pid_t pid)
         return false;
     }
     waitpid(pid, &status, 0);
-    process(pid);
+    if (mode == HEXA_FORMAT){
+        process(pid);
+    }
+    if (mode == S_FORMAT){
+        process(pid);
+    }
     return true;
 }
 
-static int parse_p_flag(char *pid)
+static int parse_p_flag(char *pid, bool mode)
 {
     pid_t processed_id = 0;
 
@@ -44,13 +40,25 @@ static int parse_p_flag(char *pid)
         return send_err("option requires an argument -- 'p'");
     }
     processed_id = atoi(pid);
-    if (processed_id == 0 && pid[0] != '0'){
+    if (processed_id == ATOI_ERROR && pid[0] != '0'){
         return send_err_arg("Invalid process id: ", pid);
     }
-    if (!attach_process_id(processed_id)){
+    if (!attach_process_id(processed_id, mode)){
         return ERROR;
     }
     return OK;
+}
+
+static int parse_s_flag(char **args, char **env)
+{
+    args++;
+    if (args[0] == NULL){
+        return send_err("option requires an argument -- 's'");
+    }
+    if (strcmp(args[0], "-p") == OK){
+        return parse_p_flag(args[1], S_FORMAT);
+    }
+    return do_strace(args, env, S_FORMAT);
 }
 
 int parse_args(char **args, char **env)
@@ -59,7 +67,10 @@ int parse_args(char **args, char **env)
         return parse_s_flag(args, env);
     }
     if (strcmp(args[0], "-p") == OK){
-        return parse_p_flag(args[1]);
+        return parse_p_flag(args[1], HEXA_FORMAT);
+    }
+    if (strcmp(args[0], "-sp") == OK || strcmp(args[0], "-ps") == OK){
+        return parse_p_flag(args[1], S_FORMAT);
     }
     return do_strace(args, env, HEXA_FORMAT);
 }
