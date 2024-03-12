@@ -69,9 +69,16 @@ static bool is_instruction_syscall(pid_t followed_pid,
 static void display_syscall_return(bool is_syscall, pid_t followed_pid,
     struct user_regs_struct *regs)
 {
+    syscall_t retrieved_syscall;
+
     if (is_syscall) {
-        ptrace(PTRACE_GETREGS, followed_pid, NULL, regs);
-        printf(" = %#x\n", regs->rax);
+        retrieved_syscall = retrieve_element(regs->rax);
+        if (retrieved_syscall.return_val == VOID)
+            printf(" = ?\n");
+        else {
+            ptrace(PTRACE_GETREGS, followed_pid, NULL, regs);
+            printf(" = %#x\n", regs->rax);
+        }
     }
 }
 
