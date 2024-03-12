@@ -96,10 +96,10 @@ int do_strace(char **arg, char **env, bool mode)
     arg[0] = strdup(path_command);
     free(path_command);
     if (mode == HEXA_FORMAT){
-        return binary_process(arg, env);
+        return binary_process(arg, env, mode);
     }
     if (mode == S_FORMAT){
-        return binary_process(arg, env);
+        return binary_process(arg, env, mode);
     }
     return ERROR;
 }

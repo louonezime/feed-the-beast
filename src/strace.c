@@ -137,7 +137,7 @@ int binary_process(char **argv, char **env, bool mode)
         }
         execve(argv[0], argv, env);
     } else {
-        process(child_pid);
+        process(child_pid, mode);
     }
     return OK;
 }

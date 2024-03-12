@@ -22,10 +22,10 @@ bool attach_process_id(pid_t pid, bool mode)
     }
     waitpid(pid, &status, 0);
     if (mode == HEXA_FORMAT){
-        process(pid);
+        process(pid, mode);
     }
     if (mode == S_FORMAT){
-        process(pid);
+        process(pid, mode);
     }
     return true;
 }
