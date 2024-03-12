@@ -70,9 +70,16 @@ static bool is_instruction_syscall(pid_t followed_pid,
 static void display_syscall_return(bool is_syscall, pid_t followed_pid,
     struct user_regs_struct *regs)
 {
+    syscall_t retrieved_syscall;
+
     if (is_syscall) {
-        ptrace(PTRACE_GETREGS, followed_pid, NULL, regs);
-        printf(" = %#x\n", regs->rax);
+        retrieved_syscall = retrieve_element(regs->rax);
+        if (retrieved_syscall.return_val == VOID)
+            printf(" = ?\n");
+        else {
+            ptrace(PTRACE_GETREGS, followed_pid, NULL, regs);
+            printf(" = %#x\n", regs->rax);
+        }
     }
 }
 
@@ -105,6 +112,8 @@ void process(pid_t followed_pid)
         display_syscall_return(is_syscall, followed_pid, &regs);
     }
     ptrace(PTRACE_DETACH, followed_pid, 0, 0);
+    if (WIFEXITED(status))
+        printf("+++ exited with %d +++\n", WEXITSTATUS(status));
 }
 
 int binary_process(char **argv, char **env)
