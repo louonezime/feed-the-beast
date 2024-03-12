@@ -22,7 +22,12 @@ static bool attach_process_id(pid_t pid, bool mode)
         perror("");
         return false;
     }
-    waitpid(pid, &status, 0);
+    if (ptrace(PTRACE_INTERRUPT, pid, NULL, NULL) < OK) {
+        fprintf(stderr, "strace: attach: ptrace(PTRACE_INTERRUPT, %d): ", pid);
+        perror("");
+        ptrace(PTRACE_DETACH, pid, 0, 0);
+        return false;
+    }
     if (mode == HEXA_FORMAT){
         process(pid);
     }
