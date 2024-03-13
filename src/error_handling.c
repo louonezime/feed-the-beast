@@ -74,14 +74,18 @@ static bool check_env(char **arg, char **env, char **path_command)
 static bool preliminaries(char **arg, char **env, char **path_command)
 {
     struct stat statis;
+    char *command = NULL;
 
     if (!check_env(arg, env, path_command)){
         if (stat(arg[0], &statis) < OK){
             fprintf(stderr, "strace: Can't stat '%s': ", arg[0]);
             perror("");
-            return false;
         }
-        return false;
+        if (access(arg[0], X_OK) < OK){
+            return false;
+        } else {
+            *path_command = strdup(arg[0]);
+        }
     }
     return true;
 }
