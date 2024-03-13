@@ -24,21 +24,20 @@ static int add_arg(char *buffer, int format,
 static int get_arg_size(struct user_regs_struct *regs, syscall_t *syscall_repr)
 {
     int size = 0;
-    int next_value = strlen(", n");
 
     size += strlen("(");
     if (syscall_repr->param1 > 0)
-        size += 1;
+        size += sizeof(regs->rdi) + 2;
     if (syscall_repr->param2 > 0)
-        size += next_value;
+        size += sizeof(regs->rsi) + 2;
     if (syscall_repr->param3 > 0)
-        size += next_value;
+        size += sizeof(regs->rdx) + 2;
     if (syscall_repr->param4 > 0)
-        size += next_value;
+        size += sizeof(regs->r10 + 2);
     if (syscall_repr->param5 > 0)
-        size += next_value;
+        size += sizeof(regs->r8 + 2);
     if (syscall_repr->param6 > 0)
-        size += next_value;
+        size += sizeof(regs->r9 + 2);
     size += strlen(")");
     return size;
 }

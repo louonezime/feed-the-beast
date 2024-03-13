@@ -61,8 +61,8 @@ static void display_syscall_return(bool is_syscall, pid_t followed_pid,
     }
 }
 
-static void process_syscall(bool mode, struct user_regs_struct *regs,
-    bool *is_syscall)
+static void process_syscall(pid_t followed_pid, struct user_regs_struct *regs,
+    bool *is_syscall, bool mode)
 {
     syscall_t retrieved_syscall = retrieve_element(regs->rax);
 
@@ -82,7 +82,7 @@ void process(pid_t followed_pid, bool mode)
         ptrace(PTRACE_GETREGS, followed_pid, NULL, &regs);
         if (is_instruction_syscall(followed_pid, &regs) &&
         syscall_exist(regs.rax))
-            process_syscall(mode, &regs, &is_syscall);
+            process_syscall(followed_pid, &regs, &is_syscall, mode);
         else
             is_syscall = false;
         ptrace(PTRACE_SINGLESTEP, followed_pid, 0, 0);
