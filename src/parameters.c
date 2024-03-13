@@ -73,6 +73,6 @@ void stock_args(bool mode, struct user_regs_struct *regs,
         return;
     memset(buffer, '\0', buffer_size + 1);
     add_params(buffer, regs, syscall_repr);
-    printf("%s", buffer);
+    dprintf(2, "%s", buffer);
     free(buffer);
 }

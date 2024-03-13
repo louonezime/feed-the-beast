@@ -53,10 +53,10 @@ static void display_syscall_return(bool is_syscall, pid_t followed_pid,
     if (is_syscall){
         retrieved_syscall = retrieve_element(regs->rax);
         if (retrieved_syscall.return_val == VOID){
-            printf(" = ?\n");
+            dprintf(2, " = ?\n");
         } else {
             ptrace(PTRACE_GETREGS, followed_pid, NULL, regs);
-            printf(" = %#x\n", regs->rax);
+            dprintf(2, " = %#x\n", regs->rax);
         }
     }
 }
@@ -68,12 +68,12 @@ static void process_syscall(pid_t followed_pid, struct user_regs_struct *regs,
 
     if (syscall_exist(regs->rax)) {
         retrieved_syscall = retrieve_element(regs->rax);
-        printf("%s", retrieved_syscall.name);
+        dprintf(2, "%s", retrieved_syscall.name);
         stock_args(mode, regs, &retrieved_syscall);
         *is_syscall = true;
     } else {
         *is_syscall = false;
-        printf("syscall_%#x(%#x, %#x, %#x, %#x, %#x, %#x) = -1 ENOSYS "
+        dprintf(2, "syscall_%#x(%#x, %#x, %#x, %#x, %#x, %#x) = -1 ENOSYS "
             "(Function not implemented)\n", regs->rdi, regs->rsi, regs->rdx,
             regs->r10, regs->r8, regs->r9);
     }
@@ -98,7 +98,7 @@ void process(pid_t followed_pid, bool mode)
     }
     ptrace(PTRACE_DETACH, followed_pid, 0, 0);
     if (WIFEXITED(status)){
-        printf("+++ exited with %d +++\n", WEXITSTATUS(status));
+        dprintf(2, "+++ exited with %d +++\n", WEXITSTATUS(status));
     }
 }
 
