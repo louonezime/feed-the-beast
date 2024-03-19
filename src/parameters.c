@@ -68,6 +68,8 @@ void display_param(bool mode, int format, long long register_value,
         fprintf(stderr, "%d", register_value);
         return;
     }
+    if (check_struct(mode, format, register_value, followed_pid) == true)
+        return;
     fprintf(stderr, "%#x", register_value);
     return;
 }
