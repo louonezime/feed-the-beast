@@ -2,6 +2,7 @@
 *.json
 
 *.o
+*.a
 
 strace
 

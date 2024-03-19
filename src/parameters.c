@@ -62,10 +62,10 @@ void display_param(bool mode, int format, long long register_value,
     }
     if (format == STRING)
         display_string(register_value, followed_pid);
-    if (format == NUM)
+    if (format == NUM || format == UNSIGNED)
         fprintf(stderr, "%d", register_value);
-    if (format != STRING && format != NUM)
-        fprintf(stderr, "%#x", register_value);
+    if (format != STRING && format != NUM && format != UNSIGNED)
+        fprintf(stderr, "%#lx", register_value);
 }
 
 static void display_next_param(bool mode, int format, long long register_value,
