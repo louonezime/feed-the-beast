@@ -68,7 +68,7 @@ static bool check_env(char **arg, char **env, char **path_command)
             return check_path(arg, env[i], path_command, env);
         }
     }
-    return true;
+    return false;
 }
 
 static bool preliminaries(char **arg, char **env, char **path_command)
