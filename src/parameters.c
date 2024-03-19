@@ -11,68 +11,88 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/user.h>
+#include <sys/ptrace.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
-static int add_arg(char *buffer, int format,
-    unsigned long register_value, bool display_comma)
+static void display_char(char character)
 {
-    if (display_comma){
-        return sprintf(buffer, ", %#x", register_value);
+    if (character == '\n')
+        printf("\\n");
+    if (character == '\r')
+        printf("\\r");
+    if (character == '\b')
+        printf("\\b");
+    if (character == '\a')
+        printf("\\a");
+    if (character == '\t')
+        printf("\\t");
+    if (character == '\f')
+        printf("\\f");
+    printf("%c", character);
+}
+
+static void display_string(unsigned long register_value, pid_t followed_pid)
+{
+    char character = 1;
+    int max = 32;
+
+    printf("\"");
+    while (character) {
+        if (max <= 0) {
+            printf("\"...");
+            return;
+        }
+        character = ptrace(PTRACE_PEEKTEXT, followed_pid, register_value, NULL);
+        display_char(character);
+        register_value++;
+        max--;
     }
-    return sprintf(buffer, "%#x", register_value);
+    printf("\"");
 }
 
-static int get_arg_size(struct user_regs_struct *regs, syscall_t *syscall_repr)
+void display_param(bool mode, int format, long long register_value,
+    pid_t followed_pid)
 {
-    int size = 0;
-
-    size += strlen("(");
-    if (syscall_repr->param1 > 0)
-        size += sizeof(regs->rdi) + 2;
-    if (syscall_repr->param2 > 0)
-        size += sizeof(regs->rsi) + 2;
-    if (syscall_repr->param3 > 0)
-        size += sizeof(regs->rdx) + 2;
-    if (syscall_repr->param4 > 0)
-        size += sizeof(regs->r10 + 2);
-    if (syscall_repr->param5 > 0)
-        size += sizeof(regs->r8 + 2);
-    if (syscall_repr->param6 > 0)
-        size += sizeof(regs->r9 + 2);
-    size += strlen(")");
-    return size;
-}
-
-static void add_params(char *buffer, struct user_regs_struct *regs,
-    syscall_t *sys_repr)
-{
-    int offset = 0;
-
-    offset += sprintf(buffer + offset, "(");
-    if (sys_repr->param1 > 0)
-        offset += add_arg(buffer + offset, sys_repr->param1, regs->rdi, false);
-    if (sys_repr->param2 > 0)
-        offset += add_arg(buffer + offset, sys_repr->param2, regs->rsi, true);
-    if (sys_repr->param3 > 0)
-        offset += add_arg(buffer + offset, sys_repr->param3, regs->rdx, true);
-    if (sys_repr->param4 > 0)
-        offset += add_arg(buffer + offset, sys_repr->param4, regs->r10, true);
-    if (sys_repr->param5 > 0)
-        offset += add_arg(buffer + offset, sys_repr->param5, regs->r8, true);
-    if (sys_repr->param6 > 0)
-        offset += add_arg(buffer + offset, sys_repr->param6, regs->r9, true);
-    offset += sprintf(buffer + offset, ")");
-}
-
-void stock_args(bool mode, struct user_regs_struct *regs,
-    syscall_t *syscall_repr)
-{
-    int buffer_size = get_arg_size(regs, syscall_repr);
-    char *buffer = malloc(sizeof(char) * buffer_size + 1);
-
-    if (buffer == NULL)
+    if (mode == HEXA_FORMAT) {
+        printf("%#x", register_value);
         return;
-    memset(buffer, '\0', buffer_size + 1);
-    add_params(buffer, regs, syscall_repr);
-    dprintf(2, "%s", buffer);
-    free(buffer);
+    }
+    if (format == STRING)
+        display_string(register_value, followed_pid);
+    if (format == NUM)
+        printf("%d", register_value);
+    if (format != STRING && format != NUM)
+        printf("%#x", register_value);
+}
+
+void display_args(bool mode, struct user_regs_struct *regs,
+    syscall_t *syscall_repr, pid_t followed_pid)
+{
+    printf("(");
+    if (syscall_repr->param1 > 0)
+        display_param(mode, syscall_repr->param1, regs->rdi, followed_pid);
+    if (syscall_repr->param2 > 0) {
+        printf(", ");
+        display_param(mode, syscall_repr->param2, regs->rsi, followed_pid);
+    }
+    if (syscall_repr->param3 > 0) {
+        printf(", ");
+        display_param(mode, syscall_repr->param3, regs->rdx, followed_pid);
+    }
+    if (syscall_repr->param4 > 0) {
+        printf(", ");
+        display_param(mode, syscall_repr->param4, regs->r10, followed_pid);
+    }
+    if (syscall_repr->param5 > 0) {
+        printf(", ");
+        display_param(mode, syscall_repr->param5, regs->r8, followed_pid);
+    }
+    if (syscall_repr->param6 > 0) {
+        printf(", ");
+        display_param(mode, syscall_repr->param6, regs->r9, followed_pid);
+    }
+    printf(")");
 }

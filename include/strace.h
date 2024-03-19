@@ -38,6 +38,10 @@ int do_strace(char **arg, char **env, bool mode);
 int binary_process(char **argv, char **env, bool mode);
 void process(pid_t followed_pid, bool mode);
 bool attach_process_id(pid_t pid, bool mode);
-void stock_args(bool mode, struct user_regs_struct *regs, syscall_t *sys_repr);
+
+void display_args(bool mode, struct user_regs_struct *regs,
+    syscall_t *syscall_repr, pid_t followed_pid);
+void display_param(bool mode, int format, long long register_value,
+    pid_t followed_pid);
 
 #endif /* !STRACE_H_ */
