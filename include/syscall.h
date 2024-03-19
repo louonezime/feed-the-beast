@@ -135,7 +135,8 @@ typedef struct syscall_s {
     int param6;
 } syscall_t;
 
-static syscall_t table[330] = {{0, "read", 3, NUM, NUM, VOID_P, NUM, 0, 0, 0},
+static const syscall_t TABLE[330] = {
+    {0, "read", 3, NUM, NUM, VOID_P, NUM, 0, 0, 0},
     {1, "write", 3, NUM, NUM, STRING, NUM, 0, 0, 0},
     {2, "open", 2, NUM, STRING, NUM, 0, 0, 0, 0},
     {3, "close", 1, NUM, NUM, 0, 0, 0, 0, 0},

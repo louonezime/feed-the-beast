@@ -21,8 +21,8 @@
 static syscall_t retrieve_element(int opcode)
 {
     for (int i = 0; i < NB_SYSCALLS; i++){
-        if (table[i].op_code == opcode){
-            return table[i];
+        if (TABLE[i].op_code == opcode){
+            return TABLE[i];
         }
     }
 }
@@ -30,7 +30,7 @@ static syscall_t retrieve_element(int opcode)
 static bool syscall_exist(int opcode)
 {
     for (int i = 0; i < NB_SYSCALLS; i++){
-        if (table[i].op_code == opcode){
+        if (TABLE[i].op_code == opcode){
             return true;
         }
     }
