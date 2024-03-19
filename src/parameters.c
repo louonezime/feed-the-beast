@@ -71,8 +71,12 @@ void stock_args(bool mode, struct user_regs_struct *regs,
 
     if (buffer == NULL)
         return;
-    memset(buffer, '\0', buffer_size + 1);
-    add_params(buffer, regs, syscall_repr);
-    dprintf(2, "%s", buffer);
-    free(buffer);
+    if (mode == HEXA_FORMAT){
+        memset(buffer, '\0', buffer_size + 1);
+        add_params(buffer, regs, syscall_repr);
+        dprintf(2, "%s", buffer);
+        free(buffer);
+    } else {
+        check_params(regs, syscall_repr);
+    }
 }

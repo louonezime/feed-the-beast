@@ -9,9 +9,13 @@
     #define STRUCTURES_H_
 
 #include "syscall.h"
+#include <stdint.h>
+
+// void print_struct_stat(void);
 
 typedef struct structure_s {
     int type;
+    void(*print)(void);
 } structure_t;
 
 static const structure_t STRUCTS[] = {
@@ -156,6 +160,10 @@ static const structure_t STRUCTS[] = {
     {
         .type = STRUCT_SCHED_ATTR_P,
     }
+};
+
+enum {
+    STRUCTS_SIZE = sizeof(STRUCTS) / sizeof(STRUCTS[0])
 };
 
 #endif /* !STRUCTURES_H_ */
