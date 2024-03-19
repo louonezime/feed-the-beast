@@ -20,79 +20,76 @@
 static void display_char(char character)
 {
     if (character == '\n')
-        printf("\\n");
+        fprintf(stderr, "\\n");
     if (character == '\r')
-        printf("\\r");
+        fprintf(stderr, "\\r");
     if (character == '\b')
-        printf("\\b");
+        fprintf(stderr, "\\b");
     if (character == '\a')
-        printf("\\a");
+        fprintf(stderr, "\\a");
     if (character == '\t')
-        printf("\\t");
+        fprintf(stderr, "\\t");
     if (character == '\f')
-        printf("\\f");
-    printf("%c", character);
+        fprintf(stderr, "\\f");
+    fprintf(stderr, "%c", character);
 }
 
-static void display_string(unsigned long register_value, pid_t followed_pid)
+static void display_string(unsigned long register_value, pid_t pid)
 {
     char character = 1;
     int max = 32;
 
-    printf("\"");
+    fprintf(stderr, "\"");
     while (character) {
         if (max <= 0) {
-            printf("\"...");
+            fprintf(stderr, "\"...");
             return;
         }
-        character = ptrace(PTRACE_PEEKTEXT, followed_pid, register_value, NULL);
+        character = ptrace(PTRACE_PEEKTEXT, pid, register_value, NULL);
         display_char(character);
         register_value++;
         max--;
     }
-    printf("\"");
+    fprintf(stderr, "\"");
 }
 
 void display_param(bool mode, int format, long long register_value,
     pid_t followed_pid)
 {
     if (mode == HEXA_FORMAT) {
-        printf("%#x", register_value);
+        fprintf(stderr, "%#x", register_value);
         return;
     }
     if (format == STRING)
         display_string(register_value, followed_pid);
     if (format == NUM)
-        printf("%d", register_value);
+        fprintf(stderr, "%d", register_value);
     if (format != STRING && format != NUM)
-        printf("%#x", register_value);
+        fprintf(stderr, "%#x", register_value);
+}
+
+static void display_next_param(bool mode, int format, long long register_value,
+    pid_t pid)
+{
+    fprintf(stderr, ", ");
+    display_param(mode, format, register_value, pid);
 }
 
 void display_args(bool mode, struct user_regs_struct *regs,
-    syscall_t *syscall_repr, pid_t followed_pid)
+    syscall_t *syscall_repr, pid_t pid)
 {
-    printf("(");
+    fprintf(stderr, "(");
     if (syscall_repr->param1 > 0)
-        display_param(mode, syscall_repr->param1, regs->rdi, followed_pid);
-    if (syscall_repr->param2 > 0) {
-        printf(", ");
-        display_param(mode, syscall_repr->param2, regs->rsi, followed_pid);
-    }
-    if (syscall_repr->param3 > 0) {
-        printf(", ");
-        display_param(mode, syscall_repr->param3, regs->rdx, followed_pid);
-    }
-    if (syscall_repr->param4 > 0) {
-        printf(", ");
-        display_param(mode, syscall_repr->param4, regs->r10, followed_pid);
-    }
-    if (syscall_repr->param5 > 0) {
-        printf(", ");
-        display_param(mode, syscall_repr->param5, regs->r8, followed_pid);
-    }
-    if (syscall_repr->param6 > 0) {
-        printf(", ");
-        display_param(mode, syscall_repr->param6, regs->r9, followed_pid);
-    }
-    printf(")");
+        display_param(mode, syscall_repr->param1, regs->rdi, pid);
+    if (syscall_repr->param2 > 0)
+        display_next_param(mode, syscall_repr->param2, regs->rsi, pid);
+    if (syscall_repr->param3 > 0)
+        display_next_param(mode, syscall_repr->param3, regs->rdx, pid);
+    if (syscall_repr->param4 > 0)
+        display_next_param(mode, syscall_repr->param4, regs->r10, pid);
+    if (syscall_repr->param5 > 0)
+        display_next_param(mode, syscall_repr->param5, regs->r8, pid);
+    if (syscall_repr->param6 > 0)
+        display_next_param(mode, syscall_repr->param6, regs->r9, pid);
+    fprintf(stderr, ")");
 }
