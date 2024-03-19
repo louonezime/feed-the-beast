@@ -22,7 +22,7 @@ SRC	=	src/strace.c			\
 		src/parsing.c			\
 		src/util_messages.c		\
 		src/error_handling.c	\
-		src/port.c				\
+		src/pid.c				\
 		src/parameters.c
 OBJ	=	$(BASE_SRC:.c=.o)
 
