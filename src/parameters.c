@@ -60,12 +60,16 @@ void display_param(bool mode, int format, long long register_value,
         fprintf(stderr, "%#x", register_value);
         return;
     }
-    if (format == STRING)
+    if (format == STRING){
         display_string(register_value, followed_pid);
-    if (format == NUM || format == UNSIGNED)
+        return;
+    }
+    if (format == NUM){
         fprintf(stderr, "%d", register_value);
-    if (format != STRING && format != NUM && format != UNSIGNED)
-        fprintf(stderr, "%#lx", register_value);
+        return;
+    }
+    fprintf(stderr, "%#x", register_value);
+    return;
 }
 
 static void display_next_param(bool mode, int format, long long register_value,
