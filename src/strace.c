@@ -80,7 +80,8 @@ static void process_syscall(pid_t followed_pid, struct user_regs_struct *regs,
         *is_syscall = true;
     } else {
         *is_syscall = false;
-        fprintf(stderr, "syscall_%#x(%#x, %#x, %#x, %#x, %#x, %#x) = -1 ENOSYS "
+        fprintf(stderr, "syscall_%#x(%#x, %#x, %#x, %#x, %#x, %#x)"
+            " = -1 ENOSYS "
             "(Function not implemented)\n", regs->rdi, regs->rsi, regs->rdx,
             regs->r10, regs->r8, regs->r9);
     }
