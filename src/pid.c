@@ -20,7 +20,11 @@ bool attach_process_id(pid_t pid, bool mode)
         send_ptrace_err("attach", "PTRACE_SEIZE", pid);
         return false;
     }
-    waitpid(pid, &status, 0);
+    if (ptrace(PTRACE_INTERRUPT, pid, NULL, NULL) < OK) {
+        send_ptrace_err("attach", "PTRACE_INTERRUPT", pid);
+        ptrace(PTRACE_DETACH, pid, 0, 0);
+        return false;
+    }
     if (mode == HEXA_FORMAT){
         process(pid, mode);
     }

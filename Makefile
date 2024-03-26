@@ -22,8 +22,9 @@ SRC	=	src/strace.c			\
 		src/parsing.c			\
 		src/util_messages.c		\
 		src/error_handling.c	\
-		src/port.c				\
-		src/parameters.c
+		src/pid.c				\
+		src/parameters.c		\
+		src/structure.c
 OBJ	=	$(BASE_SRC:.c=.o)
 
 TEST_NAME	=	unit_tests
