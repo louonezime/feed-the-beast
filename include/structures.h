@@ -8,8 +8,9 @@
 #ifndef STRUCTURES_H_
     #define STRUCTURES_H_
 
-#include "syscall.h"
-#include <stdint.h>
+    #include <stdint.h>
+
+    #include "syscall.h"
 
 void print_struct_stat(long long reg_value, pid_t followed_pid);
 void print_struct_statfs(long long reg_value, pid_t followed_pid);
