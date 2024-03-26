@@ -21,8 +21,7 @@ bool attach_process_id(pid_t pid, bool mode)
         return false;
     }
     if (ptrace(PTRACE_INTERRUPT, pid, NULL, NULL) < OK) {
-        fprintf(stderr, "strace: attach: ptrace(PTRACE_INTERRUPT, %d): ", pid);
-        perror("");
+        send_ptrace_err("attach", "PTRACE_INTERRUPT", pid);
         ptrace(PTRACE_DETACH, pid, 0, 0);
         return false;
     }

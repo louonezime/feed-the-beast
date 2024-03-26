@@ -43,5 +43,6 @@ void display_args(bool mode, struct user_regs_struct *regs,
     syscall_t *syscall_repr, pid_t followed_pid);
 void display_param(bool mode, int format, long long register_value,
     pid_t followed_pid);
+bool check_struct(bool mode, int format, long long register_value, pid_t pid);
 
 #endif /* !STRACE_H_ */
