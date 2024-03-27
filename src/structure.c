@@ -21,9 +21,8 @@ void print_struct_statfs(long long reg_value, pid_t followed_pid)
     long data = ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, NULL);
     struct statfs *statfs_data = NULL;
 
-    if (data < 0){
+    if (data < 0)
         perror("ptrace");
-    }
     statfs_data = (struct statfs *)&data;
     fprintf(stderr, "f_type=%lx, ", statfs_data->f_type);
     fprintf(stderr, "f_bsize=%lu, ", statfs_data->f_bsize);
@@ -44,9 +43,8 @@ void print_struct_stat(long long reg_value, pid_t followed_pid)
     long data = ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, NULL);
     struct stat *stat_data = NULL;
 
-    if (data < 0){
+    if (data < 0)
         perror("ptrace");
-    }
     stat_data = (struct stat *)&data;
     fprintf(stderr, "st_dev=%llu, ", (unsigned long long)stat_data->st_dev);
     fprintf(stderr, "st_ino=%llu, ", (unsigned long long)stat_data->st_ino);
