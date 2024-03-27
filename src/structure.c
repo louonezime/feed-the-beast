@@ -18,9 +18,8 @@
 void print_struct_statfs(long long reg_value, pid_t followed_pid)
 {
     struct statfs statfs_data;
-    long data = ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, &statfs_data);
 
-    if (data == -1) {
+    if (ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, &statfs_data) < OK) {
         perror("ptrace");
     }
     fprintf(stderr, "f_type=%lx, ", statfs_data.f_type);
@@ -64,7 +63,7 @@ void print_struct_stat(long long reg_value, pid_t followed_pid)
 void print_filler(long long reg_value, pid_t followed_pid)
 {
     (void)followed_pid;
-    fprintf(stderr, "{0x%llx}", reg_value);
+    fprintf(stderr, "0x%llx", reg_value);
 }
 
 bool check_struct(bool mode, int format, long long register_value,
