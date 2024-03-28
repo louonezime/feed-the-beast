@@ -7,6 +7,7 @@
 
 #include <sys/stat.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
 #include <sys/ptrace.h>
 #include <sys/vfs.h>
@@ -17,41 +18,42 @@
 
 void print_struct_statfs(long long reg_value, pid_t followed_pid)
 {
-    struct statfs statis;
+    long data = ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, NULL);
+    struct statfs *statfs_data = NULL;
 
-    if (ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, &statis) == -1) {
+    if (data < 0)
         perror("ptrace");
-    }
-    fprintf(stderr, "f_type=%d, f_bsize=%d, f_blocks=%d, f_bfree=%d, "
-        "f_bavail=%d, f_files=%d, f_ffree=%d, f_fsid=%d, f_namelen=%d, "
-        "f_frsize=%d, f_flags=%d, f_spare[0]=%d, f_spare[1]=%d, "
-        "f_spare[2]=%d, f_spare[3]=%d",
-        statis.f_type, statis.f_bsize, statis.f_blocks, statis.f_bfree,
-        statis.f_bavail, statis.f_files, statis.f_ffree, statis.f_fsid,
-        statis.f_namelen, statis.f_frsize, statis.f_flags, statis.f_spare[0],
-        statis.f_spare[1], statis.f_spare[2], statis.f_spare[3]);
+    statfs_data = (struct statfs *)&data;
+    fprintf(stderr, "f_type=%lx, ", statfs_data->f_type);
+    fprintf(stderr, "f_bsize=%lu, ", statfs_data->f_bsize);
+    fprintf(stderr, "f_blocks=%lu, ", statfs_data->f_blocks);
+    fprintf(stderr, "f_bfree=%lu, ", statfs_data->f_bfree);
+    fprintf(stderr, "f_bavail=%lu, ", statfs_data->f_bavail);
+    fprintf(stderr, "f_files=%lu, ", statfs_data->f_files);
+    fprintf(stderr, "f_ffree=%lu, ", statfs_data->f_ffree);
+    fprintf(stderr, "f_fsid={%d, %d}, ", statfs_data->f_fsid.__val[0],
+        statfs_data->f_fsid.__val[1]);
+    fprintf(stderr, "f_namelen=%lu, ", statfs_data->f_namelen);
+    fprintf(stderr, "f_frsize=%lu, ", statfs_data->f_frsize);
+    fprintf(stderr, "f_flags=%lu", statfs_data->f_flags);
 }
 
 void print_struct_stat(long long reg_value, pid_t followed_pid)
 {
-    struct stat statis;
+    long data = ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, NULL);
+    struct stat *stat_data = NULL;
 
-    if (ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, &statis) == -1) {
+    if (data < 0)
         perror("ptrace");
-    }
-    fprintf(stderr, "st_dev=%d, st_ino=%d, st_mode=%d, st_nlink=%d, "
-        "st_uid=%d, st_gid=%d, st_rdev=%d, st_size=%d, st_blksize=%d, "
-        "st_blocks=%d, st_atime=%d, st_mtime=%d, st_ctime=%d",
-        statis.st_dev, statis.st_ino, statis.st_mode, statis.st_nlink,
-        statis.st_uid, statis.st_gid, statis.st_rdev, statis.st_size,
-        statis.st_blksize, statis.st_blocks, statis.st_atime, statis.st_mtime,
-        statis.st_ctime);
+    stat_data = (struct stat *)&data;
+    fprintf(stderr, "st_mode=%u, ", stat_data->st_mode);
+    fprintf(stderr, "st_size=%lld, ...", (long long)stat_data->st_size);
 }
 
 void print_filler(long long reg_value, pid_t followed_pid)
 {
     (void)followed_pid;
-    fprintf(stderr, "{0x%llx}", reg_value);
+    fprintf(stderr, "0x%llx", reg_value);
 }
 
 bool check_struct(bool mode, int format, long long register_value,
