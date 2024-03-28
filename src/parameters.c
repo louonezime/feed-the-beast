@@ -46,6 +46,8 @@ static void display_string(unsigned long register_value, pid_t pid)
             return;
         }
         character = ptrace(PTRACE_PEEKTEXT, pid, register_value, NULL);
+        if (character == '\0')
+            break;
         display_char(character);
         register_value++;
         max--;
