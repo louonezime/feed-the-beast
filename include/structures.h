@@ -13,7 +13,6 @@
     #include "syscall.h"
 
 void print_struct_stat(long long reg_value, pid_t followed_pid);
-void print_struct_statfs(long long reg_value, pid_t followed_pid);
 void print_filler(long long reg_value, pid_t followed_pid);
 
 typedef struct structure_s {
@@ -96,7 +95,7 @@ static const structure_t STRUCTS[] = {
     },
     {
         .type = STRUCT_P,
-        .print = &print_struct_statfs
+        .print = &print_filler
     },
     {
         .type = STRUCT_TMS_P,

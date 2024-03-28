@@ -16,28 +16,6 @@
 #include "syscall.h"
 #include "structures.h"
 
-void print_struct_statfs(long long reg_value, pid_t followed_pid)
-{
-    long data = ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, NULL);
-    struct statfs *statfs_data = NULL;
-
-    if (data < 0)
-        perror("strace: PTRACE_PEEKDATA");
-    statfs_data = (struct statfs *)&data;
-    fprintf(stderr, "f_type=%lx, ", statfs_data->f_type);
-    fprintf(stderr, "f_bsize=%lu, ", statfs_data->f_bsize);
-    fprintf(stderr, "f_blocks=%lu, ", statfs_data->f_blocks);
-    fprintf(stderr, "f_bfree=%lu, ", statfs_data->f_bfree);
-    fprintf(stderr, "f_bavail=%lu, ", statfs_data->f_bavail);
-    fprintf(stderr, "f_files=%lu, ", statfs_data->f_files);
-    fprintf(stderr, "f_ffree=%lu, ", statfs_data->f_ffree);
-    fprintf(stderr, "f_fsid={%d, %d}, ", statfs_data->f_fsid.__val[0],
-        statfs_data->f_fsid.__val[1]);
-    fprintf(stderr, "f_namelen=%lu, ", statfs_data->f_namelen);
-    fprintf(stderr, "f_frsize=%lu, ", statfs_data->f_frsize);
-    fprintf(stderr, "f_flags=%lu", statfs_data->f_flags);
-}
-
 void print_struct_stat(long long reg_value, pid_t followed_pid)
 {
     long data = ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, NULL);
