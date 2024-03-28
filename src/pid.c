@@ -12,18 +12,18 @@
 #include <stdio.h>
 #include <sys/wait.h>
 
-bool attach_process_id(pid_t pid, bool mode)
+int attach_process_id(pid_t pid, bool mode)
 {
     int status = 0;
 
     if (ptrace(PTRACE_SEIZE, pid, NULL, NULL) < OK) {
         send_ptrace_err("attach", "PTRACE_SEIZE", pid);
-        return false;
+        return ERROR;
     }
     if (ptrace(PTRACE_INTERRUPT, pid, NULL, NULL) < OK) {
         send_ptrace_err("attach", "PTRACE_INTERRUPT", pid);
         ptrace(PTRACE_DETACH, pid, 0, 0);
-        return false;
+        return ERROR;
     }
     if (mode == HEXA_FORMAT){
         process(pid, mode);
@@ -31,5 +31,5 @@ bool attach_process_id(pid_t pid, bool mode)
     if (mode == S_FORMAT){
         process(pid, mode);
     }
-    return true;
+    return OK;
 }
