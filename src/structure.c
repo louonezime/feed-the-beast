@@ -22,7 +22,7 @@ void print_struct_statfs(long long reg_value, pid_t followed_pid)
     struct statfs *statfs_data = NULL;
 
     if (data < 0)
-        perror("ptrace");
+        perror("strace: PTRACE_PEEKDATA");
     statfs_data = (struct statfs *)&data;
     fprintf(stderr, "f_type=%lx, ", statfs_data->f_type);
     fprintf(stderr, "f_bsize=%lu, ", statfs_data->f_bsize);
@@ -44,7 +44,7 @@ void print_struct_stat(long long reg_value, pid_t followed_pid)
     struct stat *stat_data = NULL;
 
     if (data < 0)
-        perror("ptrace");
+        perror("strace: PTRACE_PEEKDATA");
     stat_data = (struct stat *)&data;
     fprintf(stderr, "st_mode=%u, ", stat_data->st_mode);
     fprintf(stderr, "st_size=%lld, ...", (long long)stat_data->st_size);
