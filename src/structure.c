@@ -46,20 +46,8 @@ void print_struct_stat(long long reg_value, pid_t followed_pid)
     if (data < 0)
         perror("ptrace");
     stat_data = (struct stat *)&data;
-    fprintf(stderr, "st_dev=%llu, ", (unsigned long long)stat_data->st_dev);
-    fprintf(stderr, "st_ino=%llu, ", (unsigned long long)stat_data->st_ino);
     fprintf(stderr, "st_mode=%u, ", stat_data->st_mode);
-    fprintf(stderr, "st_nlink=%llu, ",
-        (unsigned long long)stat_data->st_nlink);
-    fprintf(stderr, "st_uid=%u, ", stat_data->st_uid);
-    fprintf(stderr, "st_gid=%u, ", stat_data->st_gid);
-    fprintf(stderr, "st_rdev=%llu, ", (unsigned long long)stat_data->st_rdev);
     fprintf(stderr, "st_size=%lld, ", (long long)stat_data->st_size);
-    fprintf(stderr, "st_blksize=%lld, ", (long long)stat_data->st_blksize);
-    fprintf(stderr, "st_blocks=%lld, ", (long long)stat_data->st_blocks);
-    fprintf(stderr, "st_atime=%ld, ", stat_data->st_atime);
-    fprintf(stderr, "st_mtime=%ld, ", stat_data->st_mtime);
-    fprintf(stderr, "st_ctime=%ld", stat_data->st_ctime);
 }
 
 void print_filler(long long reg_value, pid_t followed_pid)
