@@ -37,7 +37,7 @@ Test(parsing, binary_process_s_flag_s_flag)
 Test(parsing, env_process)
 {
     char *args[] = {"ls", "-l", NULL};
-    char *env[] = {"PATH=/usr/bin\n", NULL};
+    char *env[] = {"PATH=/usr/bin", NULL};
 
     cr_assert_eq(parse_args(args, env), ERROR);
 }
@@ -96,4 +96,33 @@ Test(parsing, double_flag)
     char *env[] = {NULL};
 
     cr_assert_eq(parse_args(args, env), ERROR);
+}
+
+Test(error_handling, get_arg)
+{
+    char *path = "/usr/bin";
+    char *command = "ls";
+    char *result = get_arg(path, command);
+
+    cr_assert_str_eq(result, "/usr/bin/ls");
+}
+
+Test(error_handling, check_path)
+{
+    char *arg[] = {"ls", NULL};
+    char *env_var = "/usr/bin:/bin";
+    char *path = NULL;
+    char *env[] = {NULL};
+
+    cr_assert_eq(check_path(arg, env_var, &path, env), true);
+}
+
+Test(error_handling, check_path_fail)
+{
+    char *arg[] = {"ls", NULL};
+    char *env_var = "/usr/bin:/bin";
+    char *path = NULL;
+    char *env[] = {NULL};
+
+    cr_assert_eq(check_path(arg, env_var, &path, env), true);
 }
