@@ -29,7 +29,7 @@ OBJ	=	$(BASE_SRC:.c=.o)
 
 TEST_NAME	=	unit_tests
 
-TEST_SRC	=
+TEST_SRC	= tests/basic.c
 
 all: $(NAME)
 
