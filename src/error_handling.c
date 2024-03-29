@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-static char *get_arg(char *path, char *command)
+char *get_arg(char *path, char *command)
 {
     int j = 0;
     char *new = malloc(sizeof(char) *
@@ -37,14 +37,14 @@ static char *get_arg(char *path, char *command)
     return new;
 }
 
-static bool check_path(char **arg, char *env_var, char **path, char **env)
+bool check_path(char **arg, char *env_var, char **path, char **env)
 {
     int i = 0;
     char *command = NULL;
     char **paths = my_str_to_word_array(env_var, PATHS_SEPARATOR);
 
     if (paths == NULL)
-        return NULL;
+        return false;
     while (paths[i] != NULL){
         command = get_arg(paths[i], arg[0]);
         if (access(command, X_OK) < OK){

@@ -26,13 +26,10 @@ static int parse_p_flag(char *pid, bool mode, char **args)
     }
     if (args[2] != NULL){
         if (strcmp(args[2], "-s") == OK){
-            return attach_process_id(processed_id, S_FORMAT);
+            return attach_process_id(processed_id, HEXA_FORMAT);
         }
     }
-    if (!attach_process_id(processed_id, mode)){
-        return ERROR;
-    }
-    return OK;
+    return attach_process_id(processed_id, mode);
 }
 
 static int parse_s_flag(char **args, char **env)

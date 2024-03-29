@@ -33,11 +33,15 @@ int send_err(const char *error);
 int send_err_arg(const char *error, char *arg);
 int send_ptrace_err(const char *title, const char *request, int pid);
 
+/* Utils */
+char *get_arg(char *path, char *command);
+bool check_path(char **arg, char *env_var, char **path, char **env);
+
 /* strace */
 int do_strace(char **arg, char **env, bool mode);
 int binary_process(char **argv, char **env, bool mode);
 void process(pid_t followed_pid, bool mode);
-bool attach_process_id(pid_t pid, bool mode);
+int attach_process_id(pid_t pid, bool mode);
 
 void display_args(bool mode, struct user_regs_struct *regs,
     syscall_t *syscall_repr, pid_t followed_pid);
