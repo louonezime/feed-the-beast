@@ -18,7 +18,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-static syscall_t retrieve_element(int opcode)
+syscall_t retrieve_element(int opcode)
 {
     for (int i = 0; i < NB_SYSCALLS; i++){
         if (TABLE[i].op_code == opcode){
@@ -27,7 +27,7 @@ static syscall_t retrieve_element(int opcode)
     }
 }
 
-static bool syscall_exist(int opcode)
+bool syscall_exist(int opcode)
 {
     for (int i = 0; i < NB_SYSCALLS; i++){
         if (TABLE[i].op_code == opcode){
@@ -37,7 +37,7 @@ static bool syscall_exist(int opcode)
     return false;
 }
 
-static bool is_instruction_syscall(pid_t followed_pid,
+bool is_instruction_syscall(pid_t followed_pid,
     struct user_regs_struct *regs)
 {
     long op_code = ptrace(PTRACE_PEEKTEXT, followed_pid, regs->rip, NULL);

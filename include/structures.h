@@ -9,15 +9,16 @@
     #define STRUCTURES_H_
 
     #include <stdint.h>
+    #include <stdbool.h>
 
     #include "syscall.h"
 
-void print_struct_stat(long long reg_value, pid_t followed_pid);
-void print_filler(long long reg_value, pid_t followed_pid);
+bool print_struct_stat(long long reg_value, pid_t followed_pid);
+bool print_filler(long long reg_value, pid_t followed_pid);
 
 typedef struct structure_s {
     int type;
-    void(*print)(long long, pid_t);
+    bool(*print)(long long, pid_t);
 } structure_t;
 
 static const structure_t STRUCTS[] = {

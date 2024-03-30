@@ -17,7 +17,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-static void display_char(char character)
+void display_char(char character)
 {
     if (character == '\n')
         fprintf(stderr, "\\n");
@@ -34,7 +34,7 @@ static void display_char(char character)
     fprintf(stderr, "%c", character);
 }
 
-static void display_string(unsigned long register_value, pid_t pid)
+void display_string(unsigned long register_value, pid_t pid)
 {
     char character = 1;
     int max = 32;
@@ -76,7 +76,7 @@ void display_param(bool mode, int format, long long register_value,
     return;
 }
 
-static void display_next_param(bool mode, int format, long long register_value,
+void display_next_param(bool mode, int format, long long register_value,
     pid_t pid)
 {
     fprintf(stderr, ", ");
