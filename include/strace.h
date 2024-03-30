@@ -43,7 +43,7 @@ int binary_process(char **argv, char **env, bool mode);
 void process(pid_t followed_pid, bool mode);
 int attach_process_id(pid_t pid, bool mode);
 syscall_t retrieve_element(int opcode);
-bool is_instruction_syscall(pid_t followed_pid,struct user_regs_struct *regs);
+bool is_instruction_syscall(pid_t followed_pid, struct user_regs_struct *regs);
 bool syscall_exist(int opcode);
 
 void display_args(bool mode, struct user_regs_struct *regs,
@@ -52,7 +52,8 @@ void display_param(bool mode, int format, long long register_value,
     pid_t followed_pid);
 bool check_struct(bool mode, int format, long long register_value, pid_t pid);
 void display_string(unsigned long register_value, pid_t pid);
-void display_next_param(bool mode, int format, long long register_value, pid_t pid);
+void display_next_param(bool mode, int format, long long register_value,
+    pid_t pid);
 void display_char(char character);
 
 #endif /* !STRACE_H_ */
