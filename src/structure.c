@@ -16,22 +16,26 @@
 #include "syscall.h"
 #include "structures.h"
 
-void print_struct_stat(long long reg_value, pid_t followed_pid)
+bool print_struct_stat(long long reg_value, pid_t followed_pid)
 {
     long data = ptrace(PTRACE_PEEKDATA, followed_pid, reg_value, NULL);
     struct stat *stat_data = NULL;
 
-    if (data < 0)
+    if (data < 0){
         perror("strace: PTRACE_PEEKDATA");
+        return false;
+    }
     stat_data = (struct stat *)&data;
     fprintf(stderr, "st_mode=%u, ", stat_data->st_mode);
     fprintf(stderr, "st_size=%lld, ...", (long long)stat_data->st_size);
+    return true;
 }
 
-void print_filler(long long reg_value, pid_t followed_pid)
+bool print_filler(long long reg_value, pid_t followed_pid)
 {
     (void)followed_pid;
     fprintf(stderr, "0x%llx", reg_value);
+    return true;
 }
 
 bool check_struct(bool mode, int format, long long register_value,

@@ -29,7 +29,8 @@ OBJ	=	$(BASE_SRC:.c=.o)
 
 TEST_NAME	=	unit_tests
 
-TEST_SRC	= tests/basic.c
+TEST_SRC	=	tests/basic.c	\
+				tests/params.c
 
 all: $(NAME)
 
